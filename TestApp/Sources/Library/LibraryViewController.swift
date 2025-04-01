@@ -285,28 +285,91 @@ extension LibraryViewController: UICollectionViewDelegateFlowLayout, UICollectio
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         Task {
-            guard
-                let libraryDelegate = libraryDelegate,
-                let cell = collectionView.cellForItem(at: indexPath)
-            else {
+            guard let libraryDelegate = libraryDelegate, // Ensure delegate exists
+                  let cell = collectionView.cellForItem(at: indexPath) else {
                 return
             }
+
+            // Show loading indicator and disable interaction
             cell.contentView.addSubview(self.loadingIndicator)
             collectionView.isUserInteractionEnabled = false
 
-            defer {
-                loadingIndicator.removeFromSuperview()
-                collectionView.isUserInteractionEnabled = true
-            }
+            // Defer ensures these run when the scope exits (normally or via error/early return)
+            // However, we will manually remove indicator/enable interaction before presenting the alert.
+            // So, we'll adjust this slightly.
+            // defer {
+            //     loadingIndicator.removeFromSuperview()
+            //     collectionView.isUserInteractionEnabled = true
+            // }
 
             let book = books[indexPath.item]
 
             do {
                 guard let pub = try await library.openBook(book, sender: self) else {
+                    // Failed to open, clean up indicator and interaction state
+                    loadingIndicator.removeFromSuperview()
+                    collectionView.isUserInteractionEnabled = true
                     return
                 }
-                libraryDelegate.libraryDidSelectPublication(pub, book: book)
+
+                // --- NEW LOGIC START ---
+                if pub.containsSignificantAudio { // Check using the helper from Step 2
+                    // Hide indicator and re-enable interaction before showing alert
+                    loadingIndicator.removeFromSuperview()
+                    collectionView.isUserInteractionEnabled = true
+
+                    // Present choice to user
+                    let alert = UIAlertController(
+                        title: "Open Publication",
+                        message: "Choose how you want to open this publication.",
+                        preferredStyle: .actionSheet // .alert is also an option
+                    )
+
+                    // Read Action
+                    alert.addAction(UIAlertAction(title: "Read", style: .default) { _ in
+                        // ** IMPORTANT: This uses the NEW delegate method signature from Step 4 **
+                        // Ensure LibraryModuleDelegate is updated first.
+                        libraryDelegate.libraryDidSelectPublication(pub, book: book, mode: .read)
+                    })
+
+                    // Listen Action
+                    alert.addAction(UIAlertAction(title: "Listen", style: .default) { _ in
+                        // ** IMPORTANT: This uses the NEW delegate method signature from Step 4 **
+                        // Ensure LibraryModuleDelegate is updated first.
+                        libraryDelegate.libraryDidSelectPublication(pub, book: book, mode: .listen)
+                    })
+
+                    // Cancel Action
+                    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+                        // User cancelled, nothing more to do here.
+                        // Interaction and indicator were already handled.
+                    })
+
+                    // Needed for iPad action sheets
+                    if let popoverController = alert.popoverPresentationController {
+                        popoverController.sourceView = cell
+                        popoverController.sourceRect = cell.bounds
+                        popoverController.permittedArrowDirections = [.up, .down]
+                    }
+
+                    self.present(alert, animated: true, completion: nil)
+
+                } else {
+                    // No significant audio, proceed directly to read mode
+                    // ** IMPORTANT: This uses the NEW delegate method signature from Step 4 **
+                    // Ensure LibraryModuleDelegate is updated first.
+                    libraryDelegate.libraryDidSelectPublication(pub, book: book, mode: .read)
+
+                    // Let the delegate call handle cleanup or reader presentation will hide library
+                    // loadingIndicator.removeFromSuperview()
+                    // collectionView.isUserInteractionEnabled = true
+                }
+                // --- NEW LOGIC END ---
+
             } catch {
+                // Error occurred opening book, clean up indicator and interaction state
+                loadingIndicator.removeFromSuperview()
+                collectionView.isUserInteractionEnabled = true
                 libraryDelegate.presentError(UserError(error), from: self)
             }
         }

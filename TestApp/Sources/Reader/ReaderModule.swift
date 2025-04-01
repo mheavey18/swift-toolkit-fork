@@ -14,11 +14,13 @@ import UIKit
 protocol ReaderModuleAPI {
     var delegate: ReaderModuleDelegate? { get }
 
-    /// Presents the given publication to the user, inside the given navigation controller.
-    /// - Parameter completion: Called once the publication is presented, or if an error occured.
-    func presentPublication(publication: Publication, book: Book, in navigationController: UINavigationController)
+    /// Presents the given publication to the user, inside the given navigation controller, using the specified mode.
+    /// - Parameter publication: The publication to present.
+    /// - Parameter book: The corresponding Book database record.
+    /// - Parameter mode: The presentation mode (read or listen) requested.
+    /// - Parameter navigationController: The navigation controller to present in.
+    func presentPublication(publication: Publication, book: Book, mode: PresentationMode, in navigationController: UINavigationController)
 }
-
 protocol ReaderModuleDelegate: ModuleDelegate {}
 
 final class ReaderModule: ReaderModuleAPI {
@@ -54,41 +56,62 @@ final class ReaderModule: ReaderModuleAPI {
         ]
     }
 
-    func presentPublication(publication: Publication, book: Book, in navigationController: UINavigationController) {
-        Task {
-            guard let delegate = delegate, let bookId = book.id else {
-                fatalError("Reader delegate not set")
-            }
+    func presentPublication(publication: Publication, book: Book, mode: PresentationMode, in navigationController: UINavigationController) {
+            Task {
+                guard let delegate = delegate, let bookId = book.id else {
+                    fatalError("Reader delegate not set or book ID missing")
+                }
 
-            @MainActor func present(_ viewController: UIViewController) {
-                let backItem = UIBarButtonItem()
-                backItem.title = ""
-                viewController.navigationItem.backBarButtonItem = backItem
-                viewController.hidesBottomBarWhenPushed = true
-                navigationController.pushViewController(viewController, animated: true)
-            }
+                @MainActor func present(_ viewController: UIViewController) {
+                    let backItem = UIBarButtonItem()
+                    backItem.title = ""
+                    viewController.navigationItem.backBarButtonItem = backItem
+                    viewController.hidesBottomBarWhenPushed = true
+                    navigationController.pushViewController(viewController, animated: true)
+                }
 
-            guard let module = self.formatModules.first(where: { $0.supports(publication) }) else {
-                delegate.presentError(ReaderError.formatNotSupported, from: navigationController)
-                return
-            }
+                // --- NEW LOGIC START ---
+                var selectedModule: ReaderFormatModule?
 
-            do {
-                let readerViewController = try await module.makeReaderViewController(
-                    for: publication,
-                    locator: book.locator,
-                    bookId: bookId,
-                    books: books,
-                    bookmarks: bookmarks,
-                    highlights: highlights,
-                    readium: readium
-                )
-                await present(readerViewController)
-            } catch {
-                delegate.presentError(UserError(error), from: navigationController)
+                switch mode {
+                case .listen:
+                    // Attempt to find the AudiobookModule specifically for listen mode
+                    selectedModule = self.formatModules.first { $0 is AudiobookModule }
+                    // Optional: Add a check here if AudiobookModule *can* actually handle this specific publication,
+                    // even if it's an EPUB. If not, you might fall back to read mode or show an error.
+                    // if selectedModule == nil || !selectedModule!.supports(publication) { /* handle error or fallback */ }
+
+                case .read:
+                    // For read mode, use the original logic to find the first supporting module
+                    selectedModule = self.formatModules.first { $0.supports(publication) }
+                }
+
+                guard let module = selectedModule else {
+                    // Handle case where no suitable module was found for the requested mode/format
+                    let error = ReaderError.formatNotSupported // Or a more specific error
+                    delegate.presentError(UserError(error), from: navigationController)
+                    print("Error: Could not find a suitable reader module for the requested mode and publication format.")
+                    return
+                }
+                // --- NEW LOGIC END ---
+
+                do {
+                    // Make the reader view controller using the *selected* module
+                    let readerViewController = try await module.makeReaderViewController(
+                        for: publication,
+                        locator: book.locator,
+                        bookId: bookId,
+                        books: books,
+                        bookmarks: bookmarks,
+                        highlights: highlights, // Pass highlights repository
+                        readium: readium        // Pass readium instance
+                    )
+                    await present(readerViewController)
+                } catch {
+                    delegate.presentError(UserError(error), from: navigationController)
+                }
             }
         }
-    }
 }
 
 extension ReaderModule: ReaderFormatModuleDelegate {

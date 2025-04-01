@@ -29,9 +29,19 @@ protocol LibraryModuleAPI {
     ) async throws -> Book
 }
 
+/// Defines how the user wants to experience the publication.
+enum PresentationMode {
+    case read // Visual reading mode
+    case listen // Audio listening mode
+}
+
 protocol LibraryModuleDelegate: ModuleDelegate {
-    /// Called when the user tap on a publication in the library.
-    func libraryDidSelectPublication(_ publication: Publication, book: Book)
+    /// Called when the user selects a publication in the library, indicating the desired mode.
+    /// - Parameters:
+    ///   - publication: The Publication object to present.
+    ///   - book: The corresponding Book database record.
+    ///   - mode: The mode (read or listen) chosen by the user.
+    func libraryDidSelectPublication(_ publication: Publication, book: Book, mode: PresentationMode) // <-- MODIFIED Method Signature
 }
 
 final class LibraryModule: LibraryModuleAPI {

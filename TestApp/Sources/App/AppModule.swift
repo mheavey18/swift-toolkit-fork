@@ -84,9 +84,11 @@ extension AppModule: ModuleDelegate {
 }
 
 extension AppModule: LibraryModuleDelegate {
-    func libraryDidSelectPublication(_ publication: Publication, book: Book) {
-        reader.presentPublication(publication: publication, book: book, in: library.rootViewController)
-    }
+        func libraryDidSelectPublication(_ publication: Publication, book: Book, mode: PresentationMode) { // <-- MODIFIED Signature
+            // We now pass the 'mode' along to the ReaderModule
+            // Note: This call will require changes in ReaderModule (Step 6) to compile
+            reader.presentPublication(publication: publication, book: book, mode: mode, in: library.rootViewController)
+        }
 }
 
 extension AppModule: ReaderModuleDelegate {}

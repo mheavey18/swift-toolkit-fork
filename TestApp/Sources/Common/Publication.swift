@@ -16,4 +16,21 @@ extension Publication {
                 || DocumentTypes.main.supportsFileExtension($0.url().pathExtension?.rawValue)
         }
     }
+    
+    /// A computed property to check if the publication contains
+    /// potentially playable audio resources.
+    var containsSignificantAudio: Bool {
+       // Check both the main reading order and linked resources.
+       // You might refine this logic based on your specific needs,
+       // e.g., looking for specific link 'rel' values or minimum counts.
+       let hasAudioInReadingOrder = readingOrder.contains { link in
+           link.mediaType?.isAudio ?? false
+       }
+
+       let hasAudioInResources = resources.contains { link in
+           link.mediaType?.isAudio ?? false
+       }
+
+       return hasAudioInReadingOrder || hasAudioInResources
+    }
 }
