@@ -76,7 +76,7 @@ public final class EPUBParser: PublicationParser {
                 // or be an internal helper that populates `parsedOverlays`.
                 // For simplicity, let's assume it's structured to return the dictionary.
                 // You'll need to pass `initialManifest` to it.
-                parsedOverlays = try await parseMediaOverlayDataInternal( // Renamed to avoid conflict with your existing one
+                parsedOverlays = try await parseMediaOverlayData(
                     from: container,
                     manifest: initialManifest // Pass the manifest created from OPF components
                 )
@@ -207,26 +207,28 @@ public final class EPUBParser: PublicationParser {
         }
     
     
-    // Your existing parseMediaOverlay function, slightly adapted to be an internal helper
-    // that *returns* the dictionary.
-    private func parseMediaOverlayDataInternal(
+    private func parseMediaOverlayData(
         from container: Container,
         manifest: Manifest
     ) async throws -> [String: MediaOverlays] {
+        log(.info, "parseMediaOverlayData")
 
         var allParsedMediaOverlays: [String: MediaOverlays] = [:]
 
-        for xhtmlLink in manifest.links { // Iterate all links to find those with media-overlay-id
+        for xhtmlLink in manifest.resources { // Iterate all links to find those with media-overlay-id
+            log(.info, "Parsing media overlay data")
             // 1. Get the XHTML Href (which is the key for your dictionary)
             //    and the ID of the SMIL file.
             //    `xhtmlLink.href` is already a String.
             let xhtmlHref = xhtmlLink.href
+            log(.info, xhtmlLink.href)
+            log(.info, xhtmlLink.properties)
             guard let smilItemID = xhtmlLink.properties["media-overlay-id"] as? String else {
                 continue // This link doesn't have a media overlay associated.
             }
 
             // 2. Find the Link object for the SMIL file in the manifest by its ID.
-            guard let smilLink = manifest.links.first(where: { ($0.properties["id"] as? String) == smilItemID }) else {
+            guard let smilLink = manifest.resources.first(where: { ($0.properties["id"] as? String) == smilItemID }) else {
                 // Use self.log because this is an instance method of EPUBParser
                 self.log(.warning, "SMIL file with ID '\(smilItemID)' referenced by \(xhtmlHref) not found in manifest.")
                 continue

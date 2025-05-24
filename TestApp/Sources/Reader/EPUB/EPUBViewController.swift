@@ -18,6 +18,9 @@ public extension FontFamily {
 
 class EPUBViewController: VisualReaderViewController<EPUBNavigatorViewController> {
     private let preferencesStore: AnyUserPreferencesStore<EPUBPreferences>
+    
+    // MARK: - Media Overlay Properties (for testing parsing)
+    private var mediaOverlayService: MediaOverlayService?
 
     init(
         publication: Publication,
@@ -70,7 +73,60 @@ class EPUBViewController: VisualReaderViewController<EPUBNavigatorViewController
         super.init(navigator: navigator, publication: publication, bookId: bookId, books: books, bookmarks: bookmarks, highlights: highlights)
 
         navigator.delegate = self
+        
+        // Initialize Media Overlay Service
+           self.mediaOverlayService = publication.findService(MediaOverlayService.self)
+           if self.mediaOverlayService != nil {
+               log(.info, "MediaOverlayService was FOUND for this publication.")
+               // No need to load here, will do it when page changes or on viewDidLoad
+           } else {
+               log(.warning, "MediaOverlayService was NOT FOUND for this publication. Check EPUBParser.")
+           }
     }
+    
+    override func viewDidLoad() {
+         super.viewDidLoad()
+         // Initial load of media overlays for the current page (if any)
+         logMediaOverlaysForCurrentPage()
+     }
+
+     // MARK: - Media Overlay Test Logging
+     
+     private func logMediaOverlaysForCurrentPage() {
+         guard let service = mediaOverlayService else {
+             log(.info, "MediaOverlayService is not available. Cannot log overlays.")
+             return
+         }
+         
+         // `navigator` is the EPUBNavigatorViewController instance provided by VisualReaderViewController
+         guard let currentXHTMLHREF = navigator.currentLocation?.href.string else {
+             log(.warning, "Could not determine current XHTML HREF to log media overlays.")
+             return
+         }
+
+         if let overlays = service.mediaOverlays(forLinkHREF: currentXHTMLHREF) {
+             if overlays.nodes.isEmpty {
+                 log(.info, "Media overlays found for \(currentXHTMLHREF), but it has NO nodes (empty SMIL or parsing issue?).")
+             } else {
+                 log(.info, "SUCCESS: Found \(overlays.nodes.count) media overlay nodes for page: \(currentXHTMLHREF)")
+                 for (index, node) in overlays.nodes.prefix(5).enumerated() { // Log first 5 nodes
+                     let textRef = node.text ?? "N/A"
+                     // In EPUBViewController.swift -> logMediaOverlaysForCurrentPage
+                     if let audioClip = node.clip, let audioURL = audioClip.relativeUrl { // Use .clip and .relativeUrl
+                         let audioSrcString = audioURL.absoluteString // Get the string representation of the URL
+                         let begin = String(format: "%.2f", audioClip.start ?? 0) // Handle potential nil from parseSMILClockValue if not defaulted
+                         let end = String(format: "%.2f", audioClip.end ?? 0)
+                         self.log(.debug, "  Node \(index): Text '\(textRef)' -> Audio '\(audioSrcString)' [\(begin)s - \(end)s]")
+                     } else {
+                         self.log(.debug, "  Node \(index): Text '\(textRef)' -> No valid audio clip or URL")
+                     }
+                 }
+             }
+         } else {
+             log(.info, "No media overlays returned by service for page: \(currentXHTMLHREF)")
+         }
+     }
+
 
     override func presentUserPreferences() {
         Task {

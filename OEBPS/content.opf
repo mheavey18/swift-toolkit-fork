@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pubID" xml:lang="en" prefix="rendition: http://www.idpf.org/vocab/rendition/#">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+
+    <dc:identifier id="pubID">urn:uuid:ad1db71e-a4c0-4edd-9e08-a98b84bf972e</dc:identifier>
+    <meta refines="#pubID" property="identifier-type" scheme="xsd:string">uuid</meta>
+
+    <dc:identifier id="pubID2">urn:isbn:0000000000000</dc:identifier>
+    <meta refines="#pubID2" property="identifier-type" scheme="xsd:string">isbn</meta>
+
+    <dc:title id="title">A Christmas Carol</dc:title>
+    
+    <dc:creator id="aut">Charles Dickens</dc:creator>
+    <meta refines="#aut" property="role" scheme="marc:relators">aut</meta>
+    
+    <dc:contributor id="nrt">Several Narrators</dc:contributor>
+    <meta refines="#nrt" property="role" scheme="marc:relators">nrt</meta>
+    
+    <dc:contributor id="bkp">ReadBeyond</dc:contributor>
+    <meta refines="#bkp" property="role" scheme="marc:relators">bkp</meta>
+
+    <dc:language>en</dc:language>
+    <dc:date>2015-12-05</dc:date>
+
+    <dc:publisher>ReadBeyond</dc:publisher>
+    <dc:rights>CC BY-NC-SA 4.0</dc:rights>
+
+    <dc:subject>A Christmas Carol</dc:subject>
+    <dc:subject>Charles Dickens</dc:subject>
+    <dc:subject>Several Narrators</dc:subject>
+    <dc:description>This Audio-eBook was crafted by ReadBeyond to celebrate the release of Menestrello, a free app for reading+listening Audio-eBooks in EPUB 3 reflowable format. For more information, please visit http://www.readbeyond.it/menestrello/</dc:description>
+    
+    <dc:type>Book</dc:type>
+    <meta property="dcterms:modified">2015-12-05T00:00:01Z</meta>
+    <meta property="rendition:layout">reflowable</meta>
+    <meta name="cover" content="cover.png" />
+    
+    <meta property="media:duration" refines="#s001">00:00:15.050</meta>
+    <meta property="media:duration" refines="#s002">00:01:52.590</meta>
+    <meta property="media:duration" refines="#s003">00:42:06.510</meta>
+    <meta property="media:duration" refines="#s004">00:38:40.120</meta>
+    <meta property="media:duration" refines="#s005">00:49:53.320</meta>
+    <meta property="media:duration" refines="#s006">00:32:46.130</meta>
+    <meta property="media:duration" refines="#s007">00:14:22.330</meta>
+    <meta property="media:duration">02:59:56.049</meta>
+    <meta property="media:narrator">Several Narrators</meta>
+    <meta property="media:active-class">-epub-media-overlay-active</meta>
+
+</metadata>
+<manifest>
+    <item id="toc.ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    <item id="toc" href="Text/toc.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    
+    <item id="cover" href="Text/cover.xhtml" media-type="application/xhtml+xml"/>
+    <item id="colophon" href="Text/colophon.xhtml" media-type="application/xhtml+xml"/>
+    <item id="foreword" href="Text/foreword.xhtml" media-type="application/xhtml+xml"/>
+    <item id="begin" href="Text/begin.xhtml" media-type="application/xhtml+xml"/>
+    <item id="end" href="Text/end.xhtml" media-type="application/xhtml+xml"/>
+    <item id="playlist" href="Text/playlist.xhtml" media-type="application/xhtml+xml"/>
+    <item id="end2" href="Text/end2.xhtml" media-type="application/xhtml+xml"/>
+    
+    <item id="c001" href="Styles/style.css" media-type="text/css"/>
+
+    <item id="cover.png" href="Images/cover.png" media-type="image/png" properties="cover-image" />
+    <item id="logofb.png" href="Images/logofb.png" media-type="image/png" />
+    <item id="logotw.png" href="Images/logotw.png" media-type="image/png" />
+    <item id="logowww.png" href="Images/logowww.png" media-type="image/png" />
+    <item id="reabeyond.png" href="Images/readbeyond.png" media-type="image/png" />
+
+    <item id="l001" href="Licenses/LibriVox.txt" media-type="text/plain"/>
+    <item id="l002" href="Licenses/ProjectGutenberg.txt" media-type="text/plain"/>
+    
+    <item id="p001" href="Text/p001.xhtml" media-type="application/xhtml+xml" media-overlay="s001"/>
+    <item id="s001" href="Text/p001.xhtml.smil" media-type="application/smil+xml"/>
+    <item id="m001" href="Audio/01.mp3" media-type="audio/mpeg"/>
+
+    <item id="p002" href="Text/p002.xhtml" media-type="application/xhtml+xml" media-overlay="s002"/>
+    <item id="s002" href="Text/p002.xhtml.smil" media-type="application/smil+xml"/>
+    <item id="m002" href="Audio/02.mp3" media-type="audio/mpeg"/>
+
+    <item id="p003" href="Text/p003.xhtml" media-type="application/xhtml+xml" media-overlay="s003"/>
+    <item id="s003" href="Text/p003.xhtml.smil" media-type="application/smil+xml"/>
+    <item id="m003" href="Audio/03.mp3" media-type="audio/mpeg"/>
+
+    <item id="p004" href="Text/p004.xhtml" media-type="application/xhtml+xml" media-overlay="s004"/>
+    <item id="s004" href="Text/p004.xhtml.smil" media-type="application/smil+xml"/>
+    <item id="m004" href="Audio/04.mp3" media-type="audio/mpeg"/>
+
+    <item id="p005" href="Text/p005.xhtml" media-type="application/xhtml+xml" media-overlay="s005"/>
+    <item id="s005" href="Text/p005.xhtml.smil" media-type="application/smil+xml"/>
+    <item id="m005" href="Audio/05.mp3" media-type="audio/mpeg"/>
+
+    <item id="p006" href="Text/p006.xhtml" media-type="application/xhtml+xml" media-overlay="s006"/>
+    <item id="s006" href="Text/p006.xhtml.smil" media-type="application/smil+xml"/>
+    <item id="m006" href="Audio/06.mp3" media-type="audio/mpeg"/>
+
+    <item id="p007" href="Text/p007.xhtml" media-type="application/xhtml+xml" media-overlay="s007"/>
+    <item id="s007" href="Text/p007.xhtml.smil" media-type="application/smil+xml"/>
+    <item id="m007" href="Audio/07.mp3" media-type="audio/mpeg"/>
+
+</manifest>
+<spine page-progression-direction="ltr" toc="toc.ncx">
+    <itemref idref="cover" linear="yes"/>
+    <itemref idref="colophon" linear="yes"/>
+    <itemref idref="toc" linear="yes"/>
+    <itemref idref="foreword" linear="yes"/>
+    <itemref idref="begin" linear="yes"/>
+    <itemref idref="p001" linear="yes"/>
+    <itemref idref="p002" linear="yes"/>
+    <itemref idref="p003" linear="yes"/>
+    <itemref idref="p004" linear="yes"/>
+    <itemref idref="p005" linear="yes"/>
+    <itemref idref="p006" linear="yes"/>
+    <itemref idref="p007" linear="yes"/>
+    <itemref idref="end" linear="yes"/>
+    <itemref idref="playlist" linear="yes"/>
+    <itemref idref="end2" linear="yes"/>
+</spine>
+<guide>
+    <reference type="cover" title="Cover" href="Text/cover.xhtml" />
+    <reference type="toc" title="Contents" href="Text/toc.xhtml" />
+    <reference type="text" title="A Christmas Carol" href="Text/begin.xhtml" />
+</guide>
+</package>
+

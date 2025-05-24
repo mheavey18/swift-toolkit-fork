@@ -192,8 +192,11 @@ final class OPFParser: Loggable {
             properties["id"] = id
         }
         
-        if let mediaOverlayID = manifestItem.attr("media-overlay") {
-            properties["media-overlay-id"] = mediaOverlayID // Use a distinct key
+        log(.info, type)
+        log(.info, properties)
+
+        if let mediaOverlayID = type?.contains("smil") {
+            properties["media-overlay-id"] = properties["id"]
         }
 
         return Link(

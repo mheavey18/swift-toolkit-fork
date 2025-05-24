@@ -150,7 +150,8 @@ class EPUBSpreadView: UIView, Loggable, PageView {
     /// Evaluates the given JavaScript into the resource's HTML page.
     @discardableResult
     func evaluateScript(_ script: String, inHREF href: AnyURL? = nil) async -> Result<Any, Error> {
-        log(.trace, "Evaluate script: \(script)")
+        // NOTE: This is doing a lot of logging. It might be because of media overlays or it might not
+        // log(.trace, "Evaluate script: \(script)")
         return await withCheckedContinuation { continuation in
             webView.evaluateJavaScript(script) { res, error in
                 if let error = error {

@@ -19,14 +19,23 @@ public class DefaultMediaOverlayService: MediaOverlayService {
     }
 
     public func mediaOverlays(forLinkHREF href: String) -> MediaOverlays? {
-        let found = overlaysByXHTMLHREF[href]
-        if found == nil {
-            // It's common for HREFs to have slight variations (e.g., leading slash).
-            // You might want to add normalization logic here if keys aren't matching.
-            // For example, trying to match with and without a leading "/".
-            // For now, direct match:
-            // Log.debug(message: "MediaOverlayService: No overlays found for \(href). Available keys: \(overlaysByXHTMLHREF.keys)")
+        // First, try a direct match
+        if let foundOverlay = overlaysByXHTMLHREF[href] {
+            return foundOverlay
         }
-        return found
+
+        // If direct match fails, try appending ".smil"
+        let smilHref = href + ".smil"
+        if let foundOverlayWithSmil = overlaysByXHTMLHREF[smilHref] {
+            return foundOverlayWithSmil
+        }
+        
+        // If both attempts fail, log and return nil
+        log(.info, "Couldn't find media overlays for '\(href)' or '\(smilHref)'.")
+        
+        // For more detailed debugging, you can uncomment this:
+        // logger.debug("Available keys in overlaysByXHTMLHREF: \(self.overlaysByXHTMLHREF.keys.joined(separator: ", "))")
+        
+        return nil
     }
 }
